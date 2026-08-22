@@ -1,0 +1,25 @@
+# ---- C / CMake (vision_core_c) ----
+vision_core_c/build/*
+!vision_core_c/build/.gitkeep
+vision_core_c/bin/*
+!vision_core_c/bin/.gitkeep
+vision_core_c/external/*
+!vision_core_c/external/.gitkeep
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+*.o
+*.obj
+
+# ---- LabVIEW (vision_hmi_lv) ----
+*.lvlps
+*.aliases
+*.lvlibp
+*~.lvproj
+*.lvbackup/
+
+# ---- OS / editor cruft ----
+Thumbs.db
+.DS_Store
+*.swp
