@@ -42,3 +42,7 @@ LabC-Vision/
 ```
 
 簡單說明：**LabVIEW 只負責畫面與呼叫，實際判斷邏輯都在 C 語言這邊完成，兩者透過 .dll 的固定介面溝通。**
+
+## 開發環境設定
+
+C 編譯器工具鏈（MSYS2 / MinGW-w64 GCC）的安裝步驟、環境變數設定與已知問題排解，請見 [README_tech.md](README_tech.md)。
