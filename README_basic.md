@@ -310,7 +310,9 @@ C 專案拆成多個檔案時，慣例上依「宣告」和「定義」分工：
 - **各個 `.c` 檔放定義**：函式的實際內容（函式本體）、變數的真正定義，各自實作對應標頭檔宣告的介面。
 - **`main.c`（主程式）用 `#include "global.h"` 引入介面**，就能呼叫其他 `.c` 檔定義的共用函式，不需要自己重複宣告一次。
 
-## 14. 編譯檢查，用 `-Wall` 與 `-Wextra`
+## 14. 編譯檢查與單元測試
+
+### 14.1 編譯期檢查：`-Wall` 與 `-Wextra`
 
 gcc 預設只檢查語法錯誤，很多「語法合法、邏輯可能有問題」的寫法不會主動提醒。加上警告選項可以在編譯階段就抓到這些問題：
 
@@ -324,6 +326,48 @@ gcc -Wall -Wextra -o app app.c    # 實務上兩者一起開
 ```
 
 > 這些是 warning，不是 error。程式依然能編譯成功，但警告通常代表真的有問題，不該放著不管。
+
+### 14.2 執行期檢查：unit test
+
+**冒煙測試 VS. 單元測試**：
+
+| 比較項目 | Smoke test | Unit test |
+|---|---|---|
+| 驗證方式 | `printf` 印結果，人眼判讀 | 程式自己用斷言比對「預期值」與「實際值」 |
+| 結果 | 只看 log，沒有 pass/fail 統計 | 統一報告 `X passed, Y failed` |
+| Exit code | 通常固定回傳 0 | 全過 = 0，有失敗 = 非 0，可接 CI |
+
+**配置與寫法**：`tests/` 資料夾配置依模組分類，不引入額外測試框架，用一個自製的 `TEST_ASSERT` 巨集記錄 pass/fail：
+
+```c
+static int pass_count = 0;
+static int fail_count = 0;
+
+#define TEST_ASSERT(cond, msg) \
+    do { \
+        if (cond) { printf("[PASS] %s\n", msg); pass_count++; } \
+        else      { printf("[FAIL] %s\n", msg); fail_count++; } \
+    } while (0)
+
+// 用法：同時檢查回傳狀態碼與計算結果
+status = lv_factorial(5, &result);
+TEST_ASSERT(status == LV_OK && result == 120, "5! = 120 (LV_OK)");
+```
+
+`main` 最後回報統計、並用 exit code 讓 CI 判斷是否全部通過：
+
+```c
+printf("\n%d passed, %d failed\n", pass_count, fail_count);
+return fail_count == 0 ? 0 : 1;
+```
+
+**編譯與執行**(原始碼直接跟測試檔一起編譯，不需要先做成 DLL)：
+
+```bash
+gcc -Iinclude -o tests/math/test_math_formulas.exe src/math/math_formulas.c tests/math/test_math_formulas.c
+./tests/math/test_math_formulas.exe
+echo $?   # 0 = 全部通過，非 0 = 有 FAIL
+```
 
 ## 15. 兩種開啟 debug 模式的方式
 
