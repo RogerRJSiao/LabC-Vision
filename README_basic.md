@@ -334,8 +334,9 @@ pacman -S mingw-w64-i686-gdb
 
 編譯要先加 `-g` (保留變數名稱、行號等除錯資訊)：
 ```bash
-gcc -g -o app_dbg.exe app.c
+gcc -g -static-libgcc -o app_dbg.exe app.c
 ```
+> `-static-libgcc`：把 MinGW 的執行期依賴(如 `libgcc_s_dw2-1.dll`)直接打包進執行檔/DLL，避免部署到沒裝 MinGW 的機器時，因為缺少這個 DLL 而載入失敗。
 
 **方式一：VS Code 圖形化除錯**：行號左邊點一下設中斷點，`F5` 啟動。暫停時左側 Variables 面板看變數值，`F10`/`F11`/`F5` 分別是逐過程(Step Over)/逐行進入(Step Into)/繼續執行(Continue)。
 
@@ -371,7 +372,7 @@ gcc -g -o app_dbg.exe app.c
         "label": "build-app-debug",
         "type": "shell",
         "command": "C:/msys64/mingw32/bin/gcc.exe",
-        "args": ["-g", "-Wall", "-Wextra", "-o", "app_dbg.exe", "app.c"],
+        "args": ["-g", "-Wall", "-Wextra", "-static-libgcc", "-o", "app_dbg.exe", "app.c"],
         "options": { "cwd": "${workspaceFolder}/..." },
         "group": "build"
     }]
