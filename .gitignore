@@ -11,6 +11,12 @@ cmake_install.cmake
 Makefile
 *.o
 *.obj
+*.exe
+*.dll
+*.a
+
+# ---- Editor (machine-specific settings) ----
+.vscode/
 
 # ---- LabVIEW (vision_hmi_lv) ----
 *.lvlps
