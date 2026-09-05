@@ -2,6 +2,7 @@
 // 這裡每一筆案例都用 TEST_ASSERT 自動比對「預期值」與「實際值」
 // 結束時回報 pass/fail 統計，並用 exit code 讓 CI 判斷（0 = 全過，非 0 = 有失敗）
 #include <stdio.h>
+#include <windows.h>
 #include "math/math_formulas.h"
 
 static int pass_count = 0;
@@ -23,6 +24,10 @@ int main(void)
     int64_t result;
     int32_t table[100]; // 最大 10x10
     int32_t status, i, j, n;
+
+    // 強制輸出UTF-8
+    SetConsoleOutputCP(CP_UTF8);
+    SetConsoleCP(CP_UTF8);
 
     // ---- lv_factorial ----
     status = lv_factorial(5, &result);
