@@ -31,8 +31,9 @@ __declspec(dllexport) int32_t __cdecl lv_factorial(int32_t n, int64_t *out_resul
 // 費氏數列：計算第 n 項（n 從 0 開始，f(0)=0, f(1)=1），結果寫入 *out_result
 __declspec(dllexport) int32_t __cdecl lv_fibonacci(int32_t n, int64_t *out_result);
 
-// 9x9 乘法表：依 row-major 順序（第1列9個、第2列9個...）填入 out_table
-// out_table 由呼叫端配置，至少要有 81 個 int32_t 的空間，buf_len 是呼叫端回報的實際大小
-__declspec(dllexport) int32_t __cdecl lv_multiplication_table(int32_t *out_table, int32_t buf_len);
+// n x n 乘法表：依 row-major 順序（第1列n個、第2列n個...）填入 out_table
+// n 同時代表表格的長與寬（正方形），上限為 10（即最大 10x10）
+// out_table 由呼叫端配置，至少要有 n*n 個 int32_t 的空間
+__declspec(dllexport) int32_t __cdecl lv_multiplication_table(int32_t n, int32_t *out_table);
 
 #endif

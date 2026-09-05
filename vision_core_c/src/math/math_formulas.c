@@ -95,8 +95,9 @@ int32_t __cdecl lv_fibonacci(int32_t n, int64_t *out_result)
     return status;
 }
 
-int32_t __cdecl lv_multiplication_table(int32_t *out_table, int32_t buf_len)
+int32_t __cdecl lv_multiplication_table(int32_t n, int32_t *out_table)
 {
+    LvStatus status = LV_ERR_UNKNOWN;
     int32_t i, j;
 
     // 檢查有無指向任何有效記憶體
@@ -104,18 +105,28 @@ int32_t __cdecl lv_multiplication_table(int32_t *out_table, int32_t buf_len)
     {
         return LV_ERR_BUFFER;
     }
-    if (buf_len < 81)
+    // n 是負數，不符合陣列長寬的定義
+    if (n < 0)
+    {
+        return LV_ERR_NEGATIVE;
+    }
+    // n 為 0，或超過上限 10，視為緩衝區大小不合法
+    if (n == 0 || n > 10)
     {
         return LV_ERR_BUFFER;
     }
 
-    for (i = 1; i <= 9; i++)
+    for (i = 1; i <= n; i++)
     {
-        for (j = 1; j <= 9; j++)
+        for (j = 1; j <= n; j++)
         {
-            out_table[(i - 1) * 9 + (j - 1)] = i * j;
+            // 一維陣列
+            // 類比陣列中儲存指標的方式
+            out_table[(i - 1) * n + (j - 1)] = i * j;
         }
     }
 
-    return LV_OK;
+    // 迴圈正常跑完、沒有溢位，才標記為成功
+    status = LV_OK;
+    return status;
 }
