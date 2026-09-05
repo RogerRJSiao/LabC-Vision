@@ -309,3 +309,81 @@ C 專案拆成多個檔案時，慣例上依「宣告」和「定義」分工：
 - **`global.h`（標頭檔）放宣告**：函式原型（如 `int add(int a, int b);`）、`struct`/`typedef` 定義、`extern` 變數宣告——這些是「給別的檔案看的介面」，本身不產生程式碼或記憶體。
 - **各個 `.c` 檔放定義**：函式的實際內容（函式本體）、變數的真正定義，各自實作對應標頭檔宣告的介面。
 - **`main.c`（主程式）用 `#include "global.h"` 引入介面**，就能呼叫其他 `.c` 檔定義的共用函式，不需要自己重複宣告一次。
+
+## 14. 編譯檢查，用 `-Wall` 與 `-Wextra`
+
+gcc 預設只檢查語法錯誤，很多「語法合法、邏輯可能有問題」的寫法不會主動提醒。加上警告選項可以在編譯階段就抓到這些問題：
+
+| 選項 | 涵蓋範圍 |
+|---|---|
+| `-Wall` | 常見警告，如變數未使用、忘記 `return`、型別不匹配、`=` 打成 `==` |
+| `-Wextra` | 在 `-Wall` 之上更嚴格，如參數未使用、有號/無號比較、`switch` 漏 `case` |
+
+```bash
+gcc -Wall -Wextra -o app app.c    # 實務上兩者一起開
+```
+
+> 這些是 warning，不是 error。程式依然能編譯成功，但警告通常代表真的有問題，不該放著不管。
+
+## 15. 兩種開啟 debug 模式的方式
+
+MinGW 的 gcc 預設不會附 gdb，第一次用要另外裝(以 32-bit 工具鏈為例)：
+```bash
+pacman -S mingw-w64-i686-gdb
+```
+
+編譯要先加 `-g` (保留變數名稱、行號等除錯資訊)：
+```bash
+gcc -g -o app_dbg.exe app.c
+```
+
+**方式一：VS Code 圖形化除錯**：行號左邊點一下設中斷點，`F5` 啟動。暫停時左側 Variables 面板看變數值，`F10`/`F11`/`F5` 分別是逐過程(Step Over)/逐行進入(Step Into)/繼續執行(Continue)。
+
+需要 `.vscode/` 底下這幾個設定檔互相搭配，缺一不可：
+
+| 檔案 | 作用 |
+|---|---|
+| `launch.json` | 定義「怎麼啟動除錯」：`program` 是要除錯的 .exe 路徑、`miDebuggerPath` 是 gdb.exe 實際位置、`preLaunchTask` 指定除錯前先跑哪個編譯任務 |
+| `tasks.json` | 定義「怎麼編譯」，被 `launch.json` 的 `preLaunchTask` 呼叫，讓每次 `F5` 前都自動重新編譯，避免除錯到舊的執行檔 |
+| `settings.json` | 給 C/C++ 延伸套件用，`C_Cpp.default.compilerPath` 讓 IntelliSense 知道用哪個編譯器，避免 `#include` 找不到標頭檔的誤報 |
+
+```json
+// .vscode/launch.json
+{
+    "version": "0.2.0",
+    "configurations": [{
+        "name": "(gdb) 除錯",
+        "type": "cppdbg",
+        "request": "launch",
+        "program": "${workspaceFolder}/.../app_dbg.exe",
+        "cwd": "${workspaceFolder}/...",
+        "MIMode": "gdb",
+        "miDebuggerPath": "C:/msys64/mingw32/bin/gdb.exe",
+        "preLaunchTask": "build-app-debug"
+    }]
+}
+```
+```json
+// .vscode/tasks.json
+{
+    "version": "2.0.0",
+    "tasks": [{
+        "label": "build-app-debug",
+        "type": "shell",
+        "command": "C:/msys64/mingw32/bin/gcc.exe",
+        "args": ["-g", "-Wall", "-Wextra", "-o", "app_dbg.exe", "app.c"],
+        "options": { "cwd": "${workspaceFolder}/..." },
+        "group": "build"
+    }]
+}
+```
+
+> **注意：** `miDebuggerPath` 要跟編譯用的 gcc 位元數一致(32-bit gcc 配 32-bit gdb)；`launch.json` 的 `program` 檔名要跟 `tasks.json` 編出來的檔名對上，否則除錯會啟動失敗或除錯到錯誤的執行檔。
+
+**方式二：終端機 gdb**：
+```bash
+gdb app_dbg.exe
+```
+常用指令：`break file.c:35` 設中斷點、`run` 開始執行、`print 變數` 印值、`next`/`step` 逐行執行、`continue` 繼續、`quit` 離開。
+
+> **注意：** 除錯器只忠實顯示記憶體當下的值，故未初始化的變數可能顯示出「看起來合理但其實是巧合」的記憶體殘留值，不代表程式邏輯真的算出那個結果。
