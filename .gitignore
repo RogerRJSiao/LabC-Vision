@@ -3,8 +3,7 @@ vision_core_c/build/*
 !vision_core_c/build/.gitkeep
 vision_core_c/bin/*
 !vision_core_c/bin/.gitkeep
-vision_core_c/external/*
-!vision_core_c/external/.gitkeep
+# external/zbar/、external/stb/ 進版控（見 README_tech.md 4-1a：無可靠套件管理管道 + 上游下載連結脆弱）
 CMakeCache.txt
 CMakeFiles/
 cmake_install.cmake
@@ -14,6 +13,9 @@ Makefile
 *.exe
 *.dll
 *.a
+# external/zbar/ 的預編譯二進位是例外，要進版控（見上方說明 + README_tech.md 4-1a）
+!vision_core_c/external/zbar/bin/*.dll
+!vision_core_c/external/zbar/lib/*.a
 
 # ---- Editor (machine-specific settings) ----
 .vscode/
