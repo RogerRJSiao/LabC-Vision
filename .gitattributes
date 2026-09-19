@@ -1,0 +1,8 @@
+# ---- LabVIEW (vision_hmi_lv) ----
+# .vi / .lvproj are binary LabVIEW formats; mark them so Git never applies
+# text/CRLF normalization (which would corrupt the file) and always shows
+# "Binary files differ" instead of attempting a text diff/merge.
+*.vi binary
+*.lvproj binary
+*.lvlib binary
+*.lvclass binary
