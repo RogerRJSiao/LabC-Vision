@@ -14,7 +14,13 @@ LabC-Vision/
 │   ├── build/            CMake 編譯中繼檔 (git 忽略)
 │   └── bin/              編譯完成的 .dll 輸出位置
 │
-└── vision_hmi_lv/        LabVIEW 專案 (.lvproj、.vi)，負責畫面與操作流程
+└── vision_hmi_lv/        LabVIEW 專案，負責畫面與操作流程
+    ├── LabC-Vision.lvproj  LabVIEW 專案檔
+    ├── Main.vi             主程式，畫面與流程控制
+    ├── SubVIs/             子程式 (.vi)，例如 DecodeBarcode、ValidateBarcode
+    ├── Libraries/          各客戶/產線客製層 (prod_a…)
+    ├── Resources/          圖示、設定檔等資源
+    └── builds/             編譯輸出位置 (git 忽略)
 ```
 
 - 新增套件/功能時，是否要開新資料夾？ => 「這是 LabVIEW 會獨立呼叫的功能嗎？」
@@ -27,7 +33,7 @@ LabC-Vision/
 ```
 1. LabVIEW 前面板取得影像 (相機/檔案)
         ↓
-2. Main_UI.vi 裡的 Call Library Function Node (CLFN)
+2. Main.vi 裡的 Call Library Function Node (CLFN)
    把影像資料 (byte array) 與參數傳給指定的 .dll
         ↓
 3. deployments/<部署>/ 產出的 .dll (例如 libvision_trial.dll)
