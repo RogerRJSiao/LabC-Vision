@@ -26,6 +26,8 @@ Makefile
 *.lvlibp
 *~.lvproj
 *.lvbackup/
+vision_hmi_lv/builds/*
+!vision_hmi_lv/builds/.gitkeep
 
 # ---- OS / editor cruft ----
 Thumbs.db
