@@ -3,6 +3,7 @@ vision_core_c/build/*
 !vision_core_c/build/.gitkeep
 vision_core_c/bin/*
 !vision_core_c/bin/.gitkeep
+vision_core_c/deployments/trial/
 # external/zbar/、external/stb/ 進版控（見 README_tech.md 4-1a：無可靠套件管理管道 + 上游下載連結脆弱）
 CMakeCache.txt
 CMakeFiles/
@@ -28,6 +29,7 @@ Makefile
 *.lvbackup/
 vision_hmi_lv/builds/*
 !vision_hmi_lv/builds/.gitkeep
+*.UserState/
 
 # ---- OS / editor cruft ----
 Thumbs.db
