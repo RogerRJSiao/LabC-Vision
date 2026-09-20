@@ -288,6 +288,17 @@ Copy-Item C:\msys64\mingw32\bin\libwinpthread-1.dll, `
 | `libwinpthread-1.dll` | `libzbar-0.dll` 的間接依賴 (MinGW32 GCC 執行期支援函式庫) | `libzbar-0.dll` 編譯時用到 pthread API 需要，讓 Windows 上可以呼叫 POSIX threads (pthread) 的 API。<br>開發機因為裝了 `mingw-w64-i686-gcc` 而自帶，但 LabVIEW 那台部署機不會有。 |
 | `libgcc_s_dw2-1.dll` | `libzbar-0.dll` 的間接依賴 (MinGW32 GCC 執行期支援函式庫) | 提供例外處理機制、底層運算的基礎，同樣是編譯器工具鏈自帶，但 LabVIEW 那台部署機不會有。 |
 
+#### 4-2-5. `zbar_scan_image()` 回傳值語意
+
+`zbar_scan_image()` 回傳偵測到的條碼數量，`<= 0` 視為布林 FALSE（見 [barcode_decode.c:61-65](vision_core_c/src/barcode/barcode_decode.c#L61-L65)）。常見造成 `<= 0` 的情況：
+
+| 情況 | 說明 |
+|---|---|
+| 影像中沒有條碼 | 最常見。掃描完找不到符合條碼特徵的圖案，回傳 `0` |
+| 校驗碼(Check Digit)不符 | 條碼存在，但光線、反光或解析度不足導致解出的校驗碼跟計算值對不上，zbar 直接判定解碼錯誤、拋棄該次結果，回傳 `0` |
+| 該條碼格式(Symbology)被停用 | zbar 可設定只掃描特定格式；若影像中剛好只有被停用的格式(例如關掉了 Code 128)，會直接忽略，回傳 `0` |
+| 影像或參數錯誤 | 回傳負數。例如 `zbar_image_t` 指標為 `NULL`，或影像格式不是 zbar 支援的 Y800/GREY 灰階格式(zbar 無法直接處理未轉換的 RGB/RGBA) |
+
 - 如何查詢一個 DLL 的 import table (直接依賴哪些 DLL)
 
 用工具鏈自帶的 `objdump -p` 即可，輸出裡找 `DLL Name:` 這個關鍵字，後面接的就是直接依賴的 DLL：
