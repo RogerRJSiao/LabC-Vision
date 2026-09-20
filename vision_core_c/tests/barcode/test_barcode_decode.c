@@ -32,15 +32,15 @@ int main(void)
     SetConsoleCP(CP_UTF8);
 
     // ---- 正常路徑：解碼 + 驗證串接 ----
-    status = lv_decode_barcode_from_file("fixtures/ean13_sample.png", code, sizeof(code));
-    TEST_ASSERT(status == LV_BD_OK, "ean13_sample.png 應成功解出條碼 (LV_BD_OK)");
+    status = lv_decode_barcode_from_file("fixtures/test_img03_ean.png", code, sizeof(code));
+    TEST_ASSERT(status == LV_BD_OK, "test_img03_ean.png 應成功解出條碼 (LV_BD_OK)");
     printf("  解出字串: %s\n", code);
 
     status = lv_validate_ean(code);
     TEST_ASSERT(status == LV_BC_OK, "解碼出的字串丟給 lv_validate_ean 應通過驗證 (LV_BC_OK)");
 
     // ---- 緩衝區太小：故意給一個裝不下的 out_code_size ----
-    status = lv_decode_barcode_from_file("fixtures/ean13_sample.png", code, 3);
+    status = lv_decode_barcode_from_file("fixtures/test_img03_ean.png", code, 3);
     TEST_ASSERT(status == LV_BD_ERR_OUT_TOO_SMALL, "out_code_size 太小應回傳 LV_BD_ERR_OUT_TOO_SMALL");
 
     // ---- 檔案不存在 ----
@@ -51,7 +51,7 @@ int main(void)
     status = lv_decode_barcode_from_file(NULL, code, sizeof(code));
     TEST_ASSERT(status == LV_BD_ERR_BUFFER, "image_path 為 NULL 應回傳 LV_BD_ERR_BUFFER");
 
-    status = lv_decode_barcode_from_file("fixtures/ean13_sample.png", NULL, sizeof(code));
+    status = lv_decode_barcode_from_file("fixtures/test_img03_ean.png", NULL, sizeof(code));
     TEST_ASSERT(status == LV_BD_ERR_BUFFER, "out_code 為 NULL 應回傳 LV_BD_ERR_BUFFER");
 
     // ---- 統計結果 ----
