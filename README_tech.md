@@ -111,6 +111,14 @@ gcc ttst.c -o ttst.exe
 ./ttst.exe
 ```
 
+### 3-2. VS Code build tasks
+
+`.vscode/tasks.json` 底下每個模組各自有一組 `build-<模組>-release`（產出 `bin/*.dll` 給 LabVIEW CLFN 用）與 `build-<模組>-test`/`-debug`（產出 `tests/`、`deployments/trial/` 底下的 `.exe`）。
+
+新增 `common/error_messages`（錯誤碼→訊息字串對照表，供各模組共用）對應的 task：
+- `build-error-messages-release`：編出 `bin/error_messages.dll`
+- `build-error-messages-test`：編出 `tests/common/test_error_messages.exe`
+
 ## 4. 第三方函式庫
 
 本專案 `src/barcode/barcode_decode.c` 依賴的外部函式庫，放在 `vision_core_c/external/`：
