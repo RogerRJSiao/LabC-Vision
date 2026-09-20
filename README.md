@@ -147,4 +147,6 @@ LabC-Vision/
 
 ## 開發環境設定
 
-C 編譯器工具鏈（MSYS2 / MinGW-w64 GCC）的安裝步驟、環境變數設定與已知問題排解，請見 [README_tech.md](README_tech.md)。
+- C 編譯器工具鏈（MSYS2 / MinGW-w64 GCC）的安裝步驟、環境變數設定與已知問題排解，請見 [README_tech.md 2. 安裝 C 編譯軟體與環境](README_tech.md#2-安裝-c-編譯軟體與環境)。
+
+- 一個指令建置全部模組＋跑齊單元測試，請見 [README_tech.md 3-3. CMake 建置](README_tech.md#3-3-cmake-建置推薦一個指令建置全部模組)。
