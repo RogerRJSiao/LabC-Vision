@@ -119,6 +119,53 @@ gcc ttst.c -o ttst.exe
 - `build-error-messages-release`：編出 `bin/error_messages.dll`
 - `build-error-messages-test`：編出 `tests/common/test_error_messages.exe`
 
+> `.vscode/tasks.json` 一次只編一個模組，且不受版控（機器本機設定）。要一次建置全部模組 + 全部測試，改用下面的 CMake 流程。
+
+### 3-3. CMake 建置（推薦：一個指令建置全部模組）
+
+`vision_core_c/CMakeLists.txt` 把上面 `tasks.json` 裡逐一手動維護的 gcc 指令，統一成一份設定：一次建置 `math_formulas`、`barcode_validate`、`barcode_decode`、`error_messages` 四個模組的 `bin/*.dll`，以及 `tests/` 底下對應的單元測試，速度比一個個手動點 task 快很多，之後新增部署環境（`deployments/<新客戶>/`）也能直接重用同一份設定。
+
+#### 3-3-1. 安裝 CMake / Ninja（32-bit 工具鏈）
+
+跟第 2 節裝 `mingw-w64-i686-gcc` 一樣，用同一個 pacman 裝對應 32-bit 版本：
+
+```bash
+C:\msys64\usr\bin\pacman.exe -Sy --noconfirm --needed mingw-w64-i686-cmake mingw-w64-i686-ninja
+```
+
+#### 3-3-2. Configure（只需執行一次，除非改了 CMakeLists.txt）
+
+在 `vision_core_c/` 底下執行：
+
+```powershell
+$toolchain = Join-Path (Get-Location) "cmake\toolchain-mingw32.cmake"
+C:\msys64\mingw32\bin\cmake.exe -S . -B build -G Ninja "-DCMAKE_TOOLCHAIN_FILE=$toolchain" -DCMAKE_MAKE_PROGRAM=C:/msys64/mingw32/bin/ninja.exe
+```
+
+> ⚠️ 複製貼上長路徑字串容易夾帶隱藏字元，導致 PowerShell 誤判參數、報 `Could not find toolchain file`。用 `Join-Path` 讓 PowerShell 自己組路徑可以避開這個問題。
+
+- `-B build`：中繼檔放進 `vision_core_c/build/`（既有的、git 忽略的資料夾），不會汙染 `bin/`
+- `cmake/toolchain-mingw32.cmake`：**明確指定** `C:\msys64\mingw32\bin\gcc.exe`，不依賴當前終端機的 PATH 順序——避免第 2-3 節提到的「32/64 位元 PATH 互相蓋過」問題，不管從哪個 shell 呼叫都保證編出 32-bit DLL
+
+#### 3-3-3. Build（之後每次改完程式碼都執行這個）
+
+```powershell
+C:\msys64\mingw32\bin\cmake.exe --build build
+```
+
+- 產出的 `.dll` 固定在 `vision_core_c/bin/`（跟 `tasks.json` 原本的位置完全一樣），LabVIEW 端 CLFN 記錄的相對路徑不用改
+- `barcode_decode.dll` 建置完成後，CMake 會自動把 zbar 的 5 個執行期依賴 DLL（見 4-2-4 節）複製到 `bin/` 跟 `tests/barcode/` 旁邊，不用再手動複製
+
+> ⚠️ **DLL 被鎖住的錯誤（`Permission denied` / `cannot open output file`）**：如果 LabVIEW 正開著專案（CLFN 已經載入某個 `.dll`），Windows 會鎖住該檔案不給覆寫，建置會失敗在那個模組的連結步驟。**先關閉 LabVIEW 再重新建置**即可，這是 Windows 對載入中 DLL 的限制，跟用 CMake 或原本手動 gcc 指令都一樣會遇到。
+
+#### 3-3-4. 執行單元測試
+
+```powershell
+C:\msys64\mingw32\bin\ctest.exe --test-dir build --output-on-failure
+```
+
+會依序執行 `test_math_formulas`、`test_barcode_validate`、`test_barcode_decode`、`test_error_messages`，並自動用各測試自己的資料夾（`tests/<模組>/`）當工作目錄，讓 `tests/barcode/fixtures/ean13_sample.png` 這類相對路徑的測試素材能正確找到。
+
 ## 4. 第三方函式庫
 
 本專案 `src/barcode/barcode_decode.c` 依賴的外部函式庫，放在 `vision_core_c/external/`：
